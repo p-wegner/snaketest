@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            background: #fff;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+<canvas id="game" width="400" height="400"></canvas>
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const gridSize = 20;
+let snake = [ { x: 200, y: 200 } ];
+let direction = { x: gridSize, y: 0 };
+let food = randomPosition();
+let gameOver = false;
+
+document.addEventListener('keydown', (e) => {
+    switch (e.key) {
+        case 'ArrowUp':
+            if (direction.y === 0) direction = { x: 0, y: -gridSize };
+            break;
+        case 'ArrowDown':
+            if (direction.y === 0) direction = { x: 0, y: gridSize };
+            break;
+        case 'ArrowLeft':
+            if (direction.x === 0) direction = { x: -gridSize, y: 0 };
+            break;
+        case 'ArrowRight':
+            if (direction.x === 0) direction = { x: gridSize, y: 0 };
+            break;
+    }
+});
+
+function randomPosition() {
+    const x = Math.floor(Math.random() * (canvas.width / gridSize)) * gridSize;
+    const y = Math.floor(Math.random() * (canvas.height / gridSize)) * gridSize;
+    return { x, y };
+}
+
+function update() {
+    if (gameOver) return;
+    const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+    snake.unshift(head);
+    // Check food
+    if (head.x === food.x && head.y === food.y) {
+        food = randomPosition();
+    } else {
+        snake.pop();
+    }
+
+    // Check collisions
+    if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || snake.slice(1).some(s => s.x === head.x && s.y === head.y)) {
+        gameOver = true;
+        alert('Game Over!');
+    }
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'green';
+    snake.forEach(part => ctx.fillRect(part.x, part.y, gridSize, gridSize));
+    ctx.fillStyle = 'red';
+    ctx.fillRect(food.x, food.y, gridSize, gridSize);
+}
+
+function loop() {
+    update();
+    draw();
+    if (!gameOver) {
+        setTimeout(loop, 100);
+    }
+}
+
+loop();
+</script>
+</body>
+</html>
